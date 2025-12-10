@@ -17,6 +17,8 @@ ConvForm::ConvForm()
     Setup_Menu();
     Setup_Combo();
     Setup_Radio();
+    Setup_ToolBar();
+    Setup_StatusBar();
     InitToolTips();
     except = gcnew TextExcept();
     dataManager = gcnew DataManager();
@@ -29,7 +31,7 @@ ConvForm::ConvForm()
 void ConvForm::InitForm()
 {
 	this->Text = L"Temperature Unit Converter";
-	this->Size = Drawing::Size(410, 600);
+	this->Size = Drawing::Size(410, 638);
     this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
     this->Icon = gcnew System::Drawing::Icon("Thermo.ico");
     this->BackColor = System::Drawing::Color::WhiteSmoke;
@@ -39,7 +41,7 @@ void ConvForm::InitForm()
 	this->StartPosition = FormStartPosition::CenterScreen;
 
 	this->grpBox = gcnew GroupBox;
-	this->grpBox->Location = Point(16, 8);
+	this->grpBox->Location = Point(20, 30);
 	this->grpBox->Size = Drawing::Size(210, 100);
 	this->grpBox->Text = L"Converter";
 
@@ -82,7 +84,7 @@ void ConvForm::InitForm()
 	this->Controls->Add(grpBox);
 
     this->btnCalculate = gcnew Button;
-    this->btnCalculate->Location = Point(260, 40);
+    this->btnCalculate->Location = Point(290, 50);
     this->btnCalculate->Text = L"&Convert";
     this->btnCalculate->BackColor = System::Drawing::Color::White;
     this->btnCalculate->Click += gcnew EventHandler(this, &ConvForm::ConvertirClick);
@@ -90,7 +92,7 @@ void ConvForm::InitForm()
     this->Controls->Add(btnCalculate);
 
     this->btnClose = gcnew Button;
-    this->btnClose->Location = Point(260, 12);
+    this->btnClose->Location = Point(290, 520);
     this->btnClose->Text = L"&Close";
     this->btnClose->BackColor = System::Drawing::Color::White;
     this->btnClose->Click += gcnew EventHandler(this, &ConvForm::CloseClick);
@@ -98,7 +100,7 @@ void ConvForm::InitForm()
     this->Controls->Add(btnClose);
 
     this->DeleteData = gcnew Button;
-    this->DeleteData->Location = Point(280, 480);
+    this->DeleteData->Location = Point(290, 200);
     this->DeleteData->Size = Drawing::Size(90, 30);
     this->DeleteData->Text = L"Delete Data";
     this->DeleteData->BackColor = System::Drawing::Color::White;
@@ -108,7 +110,7 @@ void ConvForm::InitForm()
 
     this->tablel = gcnew Label;
     this->tablel->Font = gcnew System::Drawing::Font(L"Verdana", 9);
-    this->tablel->Location = Point(140, 129);
+    this->tablel->Location = Point(140, 140);
 	this->tablel->BorderStyle = BorderStyle::None;
 	this->tablel->BackColor = System::Drawing::Color::White;
     this->tablel->Text = L"Data Table";
@@ -125,6 +127,17 @@ void ConvForm::InitForm()
     this->Exprtload->Click += gcnew EventHandler(this, &ConvForm::Export_Click);
     this->Exprtload->Cursor = Cursors::Hand;
     this->Controls->Add(Exprtload);
+
+    this->status = gcnew StatusBar;
+    this->status->ShowPanels = true;
+    this->status->Dock = DockStyle::Bottom;
+    this->Controls->Add(status);
+
+    this->Tools = gcnew ToolBar;
+	this->Tools->Appearance = ToolBarAppearance::Normal;
+	this->Tools->AllowDrop = true;
+    this->Tools->Dock = DockStyle::Top;
+    this->Controls->Add(Tools);
 }
 
 void ConvForm::DeleteResults_Click(Object^pSender, EventArgs^Args)
@@ -132,7 +145,7 @@ void ConvForm::DeleteResults_Click(Object^pSender, EventArgs^Args)
     String^ selectedAction = this->combo1->SelectedItem->ToString();
     bool success = false;
     try {
-    if (selectedAction == "Delete Results") {
+    if (selectedAction == "Delete Results" || selectedAction == "Eliminar Resultados") {
         success = true;
         if (success == true) {
             try {
@@ -149,7 +162,7 @@ void ConvForm::DeleteResults_Click(Object^pSender, EventArgs^Args)
         LoadHistory();
     }
     else {
-        MessageBox::Show("Error! Select 'Delete Results' to delete the whole table.");
+        System::Windows::Forms::DialogResult result = MessageBox::Show("Select 'Delete Results' to delete the whole table.", "Remember", MessageBoxButtons::OK, MessageBoxIcon::Error);
     }
     } catch (Exception^ ex) {
         String^ finalErrorMessage = (ex->InnerException != nullptr)
@@ -182,7 +195,7 @@ void ConvForm::ConvertirClick(Object^ pSender, EventArgs^ Args)
        String^ selectedAction = this->combo1->SelectedItem->ToString();
 
        try {
-           if (selectedAction == "Store Results") {
+           if (selectedAction == "Store Results" || selectedAction == "Almacenar Resultados") {
                this->txtGF->Text = dblFahrenheit.ToString("F2", CultureInfo::InvariantCulture);
                success = true;
                if (success == true) {
@@ -200,7 +213,7 @@ void ConvForm::ConvertirClick(Object^ pSender, EventArgs^ Args)
                }
            }
            else {
-               MessageBox::Show(L"Error! Data should be stored selecting 'Store Results'.");
+               System::Windows::Forms::DialogResult result = MessageBox::Show("Data should be stored selecting 'Store Results'.", "Remember", MessageBoxButtons::OK, MessageBoxIcon::Error);
            }
        } 
        catch (Exception^ ex) {
@@ -218,7 +231,7 @@ void ConvForm::ConvertirClick(Object^ pSender, EventArgs^ Args)
         String^ selectedAction = this->combo1->SelectedItem->ToString();
 
         try {
-            if (selectedAction == "Store Results") {
+            if (selectedAction == "Store Results" || selectedAction == "Almacenar Resultados") {
                 this->txtGC->Text = dblCelsius.ToString("F2", CultureInfo::InvariantCulture);
                 success = true;
                 if (success == true) {
@@ -254,13 +267,27 @@ void ConvForm::CloseClick(Object^ pSender, EventArgs^ Args)
     this->Close();
 }
 
+void ConvForm::Setup_StatusBar() {
+    
+    this->status1 = gcnew StatusBarPanel();
+    this->status1->BorderStyle = StatusBarPanelBorderStyle::Sunken;
+    this->status1->AutoSize = StatusBarPanelAutoSize::Contents;
+    this->status2 = gcnew StatusBarPanel();
+    this->status2->BorderStyle = StatusBarPanelBorderStyle::Sunken;
+    this->status2->AutoSize = StatusBarPanelAutoSize::Spring;
+
+
+    status->Panels->Add(status1);
+    status->Panels->Add(status2);
+}
+
 void ConvForm::Setup_Combo(void){
     combo1 = gcnew ComboBox();
     combo1->DropDownStyle = ComboBoxStyle::DropDownList;
     combo1->Location = Point(255, 92);
     Label^ l1 = gcnew Label();
     l1->Text = L"Store Results";
-    combo1->Width = l1->PreferredWidth + 35;
+    combo1->Width = l1->PreferredWidth + 60;
     combo1->Items->Add(L"Store Results");
     combo1->Items->Add(L"Delete Results");
     combo1->SelectedIndex = 0;
@@ -294,7 +321,7 @@ void ConvForm::Setup_Radio()
 {
     this->highBox = gcnew GroupBox;
     this->highBox->Location = Point(30, 470);
-    this->highBox->Size = Drawing::Size(180, 50);
+    this->highBox->Size = Drawing::Size(220, 80);
     this->highBox->Text = L"Highlight Temperatures";
 
     radioC = gcnew RadioButton();
@@ -307,14 +334,31 @@ void ConvForm::Setup_Radio()
     this->highBox->Controls->Add(radioC);
     radioF = gcnew RadioButton();
     radioF->Text = L"Fahrenheit";
-    radioF->Location = Point(120, 489);
+    radioF->Location = Point(140, 489);
     radioF->Size = System::Drawing::Size(80, 20);
     radioF->Click += gcnew System::EventHandler(this, &ConvForm::Setup_RadioChecked);
     radioF->Cursor = Cursors::Hand;
+    RNone = gcnew RadioButton();
+    RNone->Text = L"No Highlight";
+    RNone->Location = Point(40, 520);
+    RNone->Click += gcnew System::EventHandler(this, &ConvForm::Setup_RadioChecked);
+    RNone->Size = System::Drawing::Size(90, 20);
+    RNone->BringToFront();
+    RNone->Cursor = Cursors::Hand;
+    HighBoth = gcnew CheckBox();
+    HighBoth->Text = L"Highlight Both";
+    HighBoth->Location = Point(140, 520);
+    HighBoth->Checked = false;
+    HighBoth->CheckedChanged += gcnew System::EventHandler(this, &ConvForm::Setup_Checked);
+    HighBoth->Size = System::Drawing::Size(100, 20);
+    HighBoth->BringToFront();
+    HighBoth->Cursor = Cursors::Hand;
     this->highBox->Controls->Add(radioF);
     radioF->BringToFront();
     Controls->Add(radioC);
     Controls->Add(radioF);
+    Controls->Add(RNone);
+    Controls->Add(HighBoth);
     this->Controls->Add(highBox);
     if (txtGC != nullptr) {
         txtGC->Font = boldFont;
@@ -331,17 +375,22 @@ void ConvForm::LoadResults()
     DataManager^ dm = gcnew DataManager();
     SqlConnection^ conn = gcnew SqlConnection(dm->GetConnectionString());
 
+    this->status1->Text = L"Connecting to the database...";
+    this->status2->Text = L"Wait...";
+
     try {
         conn->Open();
+       
         String^ sql =
             L"SELECT Fahrenheit, Celsius FROM Conversions ORDER BY ID ASC;";
         SqlDataAdapter^ da = gcnew SqlDataAdapter(sql, conn);
         DataTable^ dt = gcnew DataTable();
         da->Fill(dt);
-        
+        this->status1->Text = L"Database Connection Success.";
+        this->status2->Text = L"Ready.";
         
         dgvHistory = gcnew DataGridView();
-        dgvHistory->Location = Point(70, 150);
+        dgvHistory->Location = Point(70, 160);
         dgvHistory->Size = Drawing::Size(207, 300);
         dgvHistory->ReadOnly = true;
         dgvHistory->AllowUserToAddRows = false;
@@ -351,6 +400,8 @@ void ConvForm::LoadResults()
         this->Controls->Add(dgvHistory);
     }
     catch (Exception^ ex) {
+        this->status1->Text = L"Connection Failed.";
+        this->status2->Text = L"Error!";
         MessageBox::Show("Table could not be loaded: " + ex->Message + " Database Error");
     }
     __finally {
@@ -404,7 +455,7 @@ void ConvForm::MenuItem_About_Click(Object^ pSender, EventArgs^ Args)
     label1->Location = Point(90, 30);
 
     Label^ label2 = gcnew Label();
-    Bitmap^ iconBitmap = gcnew Bitmap("Thermo3.bmp");
+    Bitmap^ iconBitmap = gcnew Bitmap("Thermo.bmp");
     label2->Image = iconBitmap;
     label2->Size = System::Drawing::Size(48, 48);
     label2->Location = Point(15, 20);
@@ -441,6 +492,27 @@ void ConvForm::Export_Click(Object^ pSender, EventArgs^ Args)
     }
 }
 
+void ConvForm::Setup_ToolBar() {
+    
+	ImageList^ toolImages = gcnew ImageList();
+    toolImages->ImageSize = Drawing::Size(20, 20);
+	toolImages->TransparentColor = Drawing::Color::Transparent;
+    toolImages->Images->Add(Drawing::Image::FromFile("DISCO.BMP"));
+    toolImages->Images->Add(Drawing::Image::FromFile("DELETE.BMP"));
+	
+    ToolBarButton^ butnExport = gcnew ToolBarButton();
+    butnExport->ImageIndex = 0;
+	butnExport->ToolTipText = L"Export Data to CSV File";
+    ToolBarButton^ butnDelete = gcnew ToolBarButton();
+    butnDelete->ImageIndex = 1;
+    butnDelete->ToolTipText = L"Delete the Whole Table";
+    this->Tools->Buttons->Add(butnExport);
+    this->Tools->Buttons->Add(butnDelete);
+    this->Tools->ImageList = toolImages;
+    this->Tools->ButtonClick += gcnew ToolBarButtonClickEventHandler(this, &ConvForm::Event_ButtonClicked);
+    this->Tools->Cursor = Cursors::Hand;
+}
+
 void ConvForm::MenuItem_English_Click(Object^ pSender, EventArgs^ Args) {
     Item1_1->Checked = true;
     Item1_2->Checked = false;
@@ -470,6 +542,14 @@ void ConvForm::MenuItem_English_Click(Object^ pSender, EventArgs^ Args) {
     Exprtload->Text = resManager->GetString("Exprtload.Text", englishCulture);
     highBox->Text = resManager->GetString("HighBox.Text", englishCulture);
     grpBox->Text = resManager->GetString("GrpBox.Text", englishCulture);
+    RNone->Text = resManager->GetString("RNone.Text", englishCulture);
+    HighBoth->Text = resManager->GetString("HighBoth.Text", englishCulture);
+    status1->Text = resManager->GetString("Status1.Text", englishCulture);
+    status2->Text = resManager->GetString("Status2.Text", englishCulture);
+    combo1->Items->Clear();
+    combo1->Items->Add(resManager->GetString("Combo.Text", englishCulture));
+    combo1->Items->Add(resManager->GetString("Combo1.Text", englishCulture));
+    combo1->SelectedIndex = 0;
    
     AppSettings::SaveLanguage("en-GB");
 }
@@ -503,6 +583,14 @@ void ConvForm::MenuItem_Spanish_Click(Object^ pSender, EventArgs^ Args) {
     Exprtload->Text = resManager->GetString("Exprtload.Text", spanishCulture);
     highBox->Text = resManager->GetString("HighBox.Text", spanishCulture);
     grpBox->Text = resManager->GetString("GrpBox.Text", spanishCulture);
+    RNone->Text = resManager->GetString("RNone.Text", spanishCulture);
+    HighBoth->Text = resManager->GetString("HighBoth.Text", spanishCulture);
+	status1->Text = resManager->GetString("Status1.Text", spanishCulture);
+	status2->Text = resManager->GetString("Status2.Text", spanishCulture);
+    combo1->Items->Clear();
+    combo1->Items->Add(resManager->GetString("Combo.Text", spanishCulture));
+    combo1->Items->Add(resManager->GetString("Combo1.Text", spanishCulture));
+    combo1->SelectedIndex = 0;
 
     AppSettings::SaveLanguage("es-ES");
 }

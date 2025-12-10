@@ -1,0 +1,6 @@
+C:\Users\Esteban\source\repos\NewProjects\WebServices\ConversorWebService\Converso.1c62a419\x64\Debug\ConversorWebService.vcxproj.AssemblyReference.cache
+C:\Users\Esteban\source\repos\NewProjects\WebServices\ConversorWebService\Converso.1c62a419\x64\Debug\ConversorWebService.English.resources
+C:\Users\Esteban\source\repos\NewProjects\WebServices\ConversorWebService\Converso.1c62a419\x64\Debug\ConversorWebService.Español.resources
+C:\Users\Esteban\source\repos\NewProjects\WebServices\ConversorWebService\Converso.1c62a419\x64\Debug\ConversorWebService.English.en-GB.resources
+C:\Users\Esteban\source\repos\NewProjects\WebServices\ConversorWebService\Converso.1c62a419\x64\Debug\ConversorWebService.Español.es-ES.resources
+C:\Users\Esteban\source\repos\NewProjects\WebServices\ConversorWebService\Converso.1c62a419\x64\Debug\ConversorWebService.vcxproj.GenerateResource.cache

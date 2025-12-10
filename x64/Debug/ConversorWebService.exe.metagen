@@ -1,0 +1,36 @@
+  ConversorWebService.English.resources - Embedded, ContainedInManifestFile, 
+  ConversorWebService.Español.resources - Embedded, ContainedInManifestFile, 
+ImageRuntimeVersion: v4.0.30319
+Assembly ConversorWebService, Version=0.0.*, Culture=Todos los idiomas (todos los países): 
+	hash=SHA1, flags=PublicKey
+Assembly mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a: 
+	hash=None, flags=None
+Assembly System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Class Conversor.TempConvert: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Methods:
+    ConvertF2C(Double): PrivateScope, Public, HideBySig
+    ConvertC2F(Double): PrivateScope, Public, HideBySig
+Class CSV: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Methods:
+    WriteDataTableToCSV(DataTable, String): PrivateScope, Public, Static, HideBySig
+Class AppSettings: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Fields:
+    System.Resources.ResourceManager resManager : Public
+    System.String LanguageCode : Public, Static
+  Methods:
+    SaveLanguage(String): PrivateScope, Public, Static, HideBySig
+    LoadLanguage(): PrivateScope, Public, Static, HideBySig
+    InitializeMenu(): PrivateScope, Public, HideBySig
+Class NativeMethods: AutoLayout, AnsiClass, Class, Public, Abstract, Sealed, BeforeFieldInit
+  Methods:
+    MessageBox(IntPtr, String, String, UInt32): PrivateScope, Public, Static, HideBySig, PinvokeImpl

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>C:\Users\Esteban\source\repos\NewProjects\WebServices\ConversorWebService\x64\Debug\ConversorWebService.exe</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles />
+  <SatelliteDlls>
+    <SatelliteDll>
+      <FullPath>C:\Users\Esteban\source\repos\NewProjects\WebServices\ConversorWebService\Converso.1c62a419\x64\Debug\en-GB\ConversorWebService.resources.dll</FullPath>
+    </SatelliteDll>
+    <SatelliteDll>
+      <FullPath>C:\Users\Esteban\source\repos\NewProjects\WebServices\ConversorWebService\Converso.1c62a419\x64\Debug\es-ES\ConversorWebService.resources.dll</FullPath>
+    </SatelliteDll>
+  </SatelliteDlls>
+  <NonRecipeFileRefs />
+</Project>

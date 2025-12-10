@@ -162,4 +162,22 @@
   <data name="GrpBox.Text" xml:space="preserve">
     <value>Converter</value>
   </data>
+  <data name="Combo.Text" xml:space="preserve">
+    <value>Store Results</value>
+  </data>
+  <data name="Combo1.Text" xml:space="preserve">
+    <value>Delete Results</value>
+  </data>
+  <data name="HighBoth.Text" xml:space="preserve">
+    <value>Highlight Both</value>
+  </data>
+  <data name="RNone.Text" xml:space="preserve">
+    <value>No Highlight</value>
+  </data>
+  <data name="Status1.Text" xml:space="preserve">
+    <value>Database Connection Success.</value>
+  </data>
+  <data name="Status2.Text" xml:space="preserve">
+    <value>Ready.</value>
+  </data>
 </root>

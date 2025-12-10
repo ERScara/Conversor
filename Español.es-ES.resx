@@ -133,7 +133,7 @@
     <value>Tabla de Datos</value>
   </data>
   <data name="Settings.Text" xml:space="preserve">
-    <value>Herramientas</value>
+    <value>Ajustes</value>
   </data>
   <data name="SMenu.Text" xml:space="preserve">
     <value>Idioma</value>
@@ -161,5 +161,23 @@
   </data>
   <data name="GrpBox.Text" xml:space="preserve">
     <value>Conversor</value>
+  </data>
+  <data name="Combo.Text" xml:space="preserve">
+    <value>Almacenar Resultados</value>
+  </data>
+  <data name="Combo1.Text" xml:space="preserve">
+    <value>Eliminar Resultados</value>
+  </data>
+  <data name="HighBoth.Text" xml:space="preserve">
+    <value>Resaltar Ambas</value>
+  </data>
+  <data name="RNone.Text" xml:space="preserve">
+    <value>No Resaltar</value>
+  </data>
+  <data name="Status1.Text" xml:space="preserve">
+    <value>Conección a la Base de Datos Exitosa.</value>
+  </data>
+  <data name="Status2.Text" xml:space="preserve">
+    <value>Todo Listo.</value>
   </data>
 </root>

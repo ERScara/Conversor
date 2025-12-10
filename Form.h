@@ -21,6 +21,7 @@ using namespace System::Runtime::InteropServices;
 
 const unsigned int MB_OKCANCEL = 0x00000001;
 const unsigned int MB_ICONINFORMATION = 0x00000040;
+const unsigned int MB_ICONWARNING = 0x00000030;
 const int IDOK = 1;
 
 ref class DataManager {
@@ -174,7 +175,9 @@ public:
 	ConvForm();
 	void InitForm();
 	void InitToolTips();
+	void Setup_StatusBar();
 	void Setup_Menu();
+	void Setup_ToolBar();
 	void Setup_Combo();
 	void Setup_Radio();
 	void LoadResults();
@@ -228,6 +231,14 @@ private:
 
 		return (result == IDOK);
 	}
+	bool ConfirmDeleteTable() {
+		String^ theText = L"Are you sure you want to delete \nall the results from the table?";
+		String^ theCaption = L"Confirm Deletion";
+
+		int result = NativeMethods::MessageBox(IntPtr::Zero, theText, theCaption, MB_OKCANCEL | MB_ICONWARNING);
+
+		return (result == IDOK);
+	}
 	Button^ btnClose;
 	void CloseClick(Object^ pSender, EventArgs^ Args);
 
@@ -257,6 +268,12 @@ private:
 	Label^ tablel;
 	RadioButton^ radioC;
 	RadioButton^ radioF;
+	RadioButton^ RNone;
+	ToolBar^ Tools;
+	StatusBar^ status;
+	StatusBarPanel^ status1;
+	StatusBarPanel^ status2;
+	CheckBox^ HighBoth;
 	DataGridView^ dgvResults;
 	Button^ DeleteData;
 	DataManager^ dataManager;
@@ -278,6 +295,16 @@ private:
 			MessageBox::Show(L"Error loading history: ", ex->Message);
 		}
 	}
+	void Event_ButtonClicked(Object^ pSender, ToolBarButtonClickEventArgs^ Args) {
+		if (Args->Button->ToolTipText == L"Export Data to CSV File") {
+			Export_Click(pSender, Args);
+		}
+		else if (Args->Button->ToolTipText == L"Delete the Whole Table") {
+			if (ConfirmDeleteTable()) {
+				DeleteResults_Click(pSender, Args);
+			}
+		}
+	}
 	void Setup_RadioChecked(Object^ pSender, EventArgs^ Args)
 	{
 		RadioButton^ rb = safe_cast<RadioButton^>(pSender);
@@ -288,6 +315,23 @@ private:
 		}
 		else if (rb == radioF) {
 			if (txtGF != nullptr) txtGF->Font = boldFont;
+			if (txtGC != nullptr) txtGC->Font = defaultFont;
+		}
+		else if (rb == RNone) {
+			if (txtGF != nullptr) txtGF->Font = defaultFont;
+			if (txtGC != nullptr) txtGC->Font = defaultFont;
+		}
+	}
+	void Setup_Checked(Object^ pSender, EventArgs^ Args)
+	{
+		CheckBox^ cb = safe_cast<CheckBox^>(pSender);
+		if (cb->Checked) {
+			if (txtGC != nullptr) txtGC->Font = boldFont;
+			if (txtGF != nullptr) txtGF->Font = boldFont;
+		}
+		else if (!cb->Checked) 
+		{
+			if (txtGF != nullptr) txtGF->Font = defaultFont;
 			if (txtGC != nullptr) txtGC->Font = defaultFont;
 		}
 	}
