@@ -84,7 +84,7 @@ void ConvForm::InitForm()
 	this->Controls->Add(grpBox);
 
     this->btnCalculate = gcnew Button;
-    this->btnCalculate->Location = Point(290, 50);
+    this->btnCalculate->Location = Point(280, 50);
     this->btnCalculate->Text = L"&Convert";
     this->btnCalculate->BackColor = System::Drawing::Color::White;
     this->btnCalculate->Click += gcnew EventHandler(this, &ConvForm::ConvertirClick);
@@ -92,7 +92,7 @@ void ConvForm::InitForm()
     this->Controls->Add(btnCalculate);
 
     this->btnClose = gcnew Button;
-    this->btnClose->Location = Point(290, 520);
+    this->btnClose->Location = Point(290, 500);
     this->btnClose->Text = L"&Close";
     this->btnClose->BackColor = System::Drawing::Color::White;
     this->btnClose->Click += gcnew EventHandler(this, &ConvForm::CloseClick);
@@ -100,7 +100,7 @@ void ConvForm::InitForm()
     this->Controls->Add(btnClose);
 
     this->DeleteData = gcnew Button;
-    this->DeleteData->Location = Point(290, 200);
+    this->DeleteData->Location = Point(275, 200);
     this->DeleteData->Size = Drawing::Size(90, 30);
     this->DeleteData->Text = L"Delete Data";
     this->DeleteData->BackColor = System::Drawing::Color::White;
@@ -110,7 +110,7 @@ void ConvForm::InitForm()
 
     this->tablel = gcnew Label;
     this->tablel->Font = gcnew System::Drawing::Font(L"Verdana", 9);
-    this->tablel->Location = Point(140, 140);
+    this->tablel->Location = Point(110, 140);
 	this->tablel->BorderStyle = BorderStyle::None;
 	this->tablel->BackColor = System::Drawing::Color::White;
     this->tablel->Text = L"Data Table";
@@ -120,7 +120,7 @@ void ConvForm::InitForm()
     this->Icon = gcnew System::Drawing::Icon("Thermo.ico");
 
     this->Exprtload = gcnew Button;
-    this->Exprtload->Location = Point(290, 150);
+    this->Exprtload->Location = Point(275, 160);
     this->Exprtload->Size = Drawing::Size(90, 30);
     this->Exprtload->Text = L"Export Data";
     this->Exprtload->BackColor = System::Drawing::Color::White;
@@ -138,6 +138,15 @@ void ConvForm::InitForm()
 	this->Tools->AllowDrop = true;
     this->Tools->Dock = DockStyle::Top;
     this->Controls->Add(Tools);
+
+    this->labs = gcnew Label;
+	this->labs->Location = Point(275, 300);
+	this->labs->Size = Drawing::Size(250, 80);
+
+    refreshTimer = gcnew System::Windows::Forms::Timer();
+    refreshTimer->Interval = 5000;
+    refreshTimer->Tick += gcnew EventHandler(this, &ConvForm::OnRefreshTimerTick);
+    refreshTimer->Start();
 }
 
 void ConvForm::DeleteResults_Click(Object^pSender, EventArgs^Args)
@@ -146,6 +155,9 @@ void ConvForm::DeleteResults_Click(Object^pSender, EventArgs^Args)
     bool success = false;
     try {
     if (selectedAction == "Delete Results" || selectedAction == "Eliminar Resultados") {
+        if (!ConfirmDeleteTable()) {
+            return;
+        }
         success = true;
         if (success == true) {
             try {
@@ -249,7 +261,7 @@ void ConvForm::ConvertirClick(Object^ pSender, EventArgs^ Args)
                 }
             }
             else {
-                MessageBox::Show(L"Error! Data should be stored selecting 'Store Results'.");
+                System::Windows::Forms::DialogResult result = MessageBox::Show("Data should be stored selecting 'Store Results'.", "Remember", MessageBoxButtons::OK, MessageBoxIcon::Error);
             }
         }
         catch (Exception^ ex) {
@@ -390,7 +402,7 @@ void ConvForm::LoadResults()
         this->status2->Text = L"Ready.";
         
         dgvHistory = gcnew DataGridView();
-        dgvHistory->Location = Point(70, 160);
+        dgvHistory->Location = Point(35, 160);
         dgvHistory->Size = Drawing::Size(207, 300);
         dgvHistory->ReadOnly = true;
         dgvHistory->AllowUserToAddRows = false;
@@ -497,17 +509,24 @@ void ConvForm::Setup_ToolBar() {
 	ImageList^ toolImages = gcnew ImageList();
     toolImages->ImageSize = Drawing::Size(20, 20);
 	toolImages->TransparentColor = Drawing::Color::Transparent;
+    toolImages->Images->Add(Drawing::Image::FromFile("OPENFOLD.ICO"));
     toolImages->Images->Add(Drawing::Image::FromFile("DISCO.BMP"));
     toolImages->Images->Add(Drawing::Image::FromFile("DELETE.BMP"));
 	
+    ToolBarButton^ btnOpenFile = gcnew ToolBarButton();
+    btnOpenFile->ImageIndex = 0;
+    btnOpenFile->ToolTipText = L"Open a File";
     ToolBarButton^ butnExport = gcnew ToolBarButton();
-    butnExport->ImageIndex = 0;
+    butnExport->ImageIndex = 1;
 	butnExport->ToolTipText = L"Export Data to CSV File";
     ToolBarButton^ butnDelete = gcnew ToolBarButton();
-    butnDelete->ImageIndex = 1;
+    butnDelete->ImageIndex = 2;
     butnDelete->ToolTipText = L"Delete the Whole Table";
+    
+    this->Tools->Buttons->Add(btnOpenFile);
     this->Tools->Buttons->Add(butnExport);
     this->Tools->Buttons->Add(butnDelete);
+   
     this->Tools->ImageList = toolImages;
     this->Tools->ButtonClick += gcnew ToolBarButtonClickEventHandler(this, &ConvForm::Event_ButtonClicked);
     this->Tools->Cursor = Cursors::Hand;

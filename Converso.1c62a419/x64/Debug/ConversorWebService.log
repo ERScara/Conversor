@@ -1,4 +1,6 @@
 ﻿  Form.cpp
-C:\Users\Esteban\source\repos\NewProjects\WebServices\ConversorWebService\Form.cpp(262,29): warning C4101: 'ex': variable local sin referencia
+C:\Users\Esteban\source\repos\NewProjects\WebServices\ConversorWebService\Form.cpp(274,29): warning C4101: 'ex': variable local sin referencia
+  main.cpp
+  Generando código...
   Conversor.obj : se encontró un módulo MSIL; vinculación incremental deshabilitada para MSIL; ejecutando vínculo completo
   ConversorWebService.vcxproj -> C:\Users\Esteban\source\repos\NewProjects\WebServices\ConversorWebService\x64\Debug\ConversorWebService.exe

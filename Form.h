@@ -26,12 +26,12 @@ const int IDOK = 1;
 
 ref class DataManager {
 private:
-	String^ connectionString = L"Server=(LocalDB)\\MSSQLLocalDB;" L"Database=Conversor;" L"AttachDbFilename=C:\\Users\\Esteban\\Documents\\Conversor.mdf;"  L"Integrated Security = True;";
+	String^ connectionString = L"Server=(LocalDB)\\MSSQLLocalDB;" L"Database=Conversor;" L"AttachDbFilename=C:\\Users\\Esteban\\source\\repos\\NewProjects\\WebServices\\ConversorWebService\\Conversor.mdf;"  L"Integrated Security = True;";
 	void CreateTable(SqlConnection^ conn) {
 		String^ sql =
 			L"IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Conversions')" +
 			L"CREATE TABLE Conversions (" +
-			L"     ID INT IDENTITY(1,1) PRIMARY KEY," +
+			L"     ID INT IDENTITY(1, 1)  PRIMARY KEY," +
 			L"     Fahrenheit DECIMAL(18, 2) NOT NULL," +
 			L"     Celsius    DECIMAL(18, 2) NOT NULL" +
 			L");";
@@ -39,6 +39,19 @@ private:
 		cmd->ExecuteNonQuery();
 	}
 public:
+	DataManager() {
+		try {
+			if (!System::IO::File::Exists("C:\\Users\\Esteban\\source\\repos\\NewProjects\\WebServices\\ConversorWebService\\Conversor.mdf")) {
+				throw gcnew Exception("Database file not found at specified path.");
+			}
+			else if (connectionString == nullptr || connectionString == "") {
+				throw gcnew Exception("Connection string is null.");
+			}
+		}
+		catch (Exception^ ex) {
+			System::Windows::Forms::DialogResult result = MessageBox::Show("Error initializing DataManager: " + ex->Message, "Data Manager Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
+		}
+	}
 	void InsertResult(double fahrenheit, double celsius) {
 		SqlConnection^ conn = gcnew SqlConnection(connectionString);
 		try {
@@ -95,6 +108,35 @@ public:
 	String^ GetConnectionString() {
 		return connectionString;
 	}
+	void ImportCSVtoSQL(String^ csvPath) {
+		SqlConnection^ conn = gcnew SqlConnection(connectionString);
+		try {
+			conn->Open();
+
+			StreamReader^ sr = gcnew StreamReader(csvPath);
+
+			String^ headerLine = sr->ReadLine();
+			while (!sr->EndOfStream) {
+				String^ line = sr->ReadLine();
+				array<String^>^ values = line->Split(',');
+
+				String^ query = L"INSERT INTO Conversions (Fahrenheit, Celsius) " +
+					L"VALUES (@F, @C)";
+				SqlCommand^ cmd = gcnew SqlCommand(query, conn);
+
+				cmd->Parameters->AddWithValue(L"@F", values[0]);
+				cmd->Parameters->AddWithValue(L"@C", values[1]);
+				cmd->ExecuteNonQuery();
+			}
+			sr->Close();
+			conn->Close();
+
+			MessageBox::Show("Data imported successfully");
+		}
+		catch (Exception^ ex) {
+			MessageBox::Show("Error importing: " + ex->Message);
+		}
+	}
 };
 
 ref class TextExcept {
@@ -143,6 +185,7 @@ public:
 		}
 	}
 };
+
 
 public ref class AppSettings {
 public: 
@@ -210,6 +253,12 @@ private:
 	ResourceManager^ resManager;
 	Label^ label1;
 	Label^ label2;
+	System::Windows::Forms::Timer^ refreshTimer;
+	void OnRefreshTimerTick(Object^ pSender, EventArgs^ Args) {
+		DataManager^ dm = gcnew DataManager();
+		DataTable^ dataTable = dm->GetHistory();
+		dgvHistory->DataSource = dataTable;
+	}
 	void OKButton_Cliked(Object^ pSender, EventArgs^ Args);
 	void MenuItem_About_Click(Object^ pSender, EventArgs^ Args);
 	void MenuItem_Exit_Click(Object^ pSender, EventArgs^ Args);
@@ -242,6 +291,16 @@ private:
 	Button^ btnClose;
 	void CloseClick(Object^ pSender, EventArgs^ Args);
 
+	void OpenButtonClick(Object^ pSender, ToolBarButtonClickEventArgs^ Args) {
+		OpenFileDialog^ openFile = gcnew OpenFileDialog();
+		openFile->Filter = "CSV files (*.csv)|*.csv";
+		openFile->Title = "Select a File to Open";
+		if (openFile->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
+			String^ csvPath = openFile->FileName;
+			DataManager^ dm = gcnew DataManager();
+			dm->ImportCSVtoSQL(csvPath);
+		}
+	}
 
 	void ExporttoCSV() 
 	{
@@ -265,6 +324,7 @@ private:
 	}
 	ComboBox^ combo1;
 	Label^ l1;
+	Label^ labs;
 	Label^ tablel;
 	RadioButton^ radioC;
 	RadioButton^ radioF;
@@ -296,13 +356,14 @@ private:
 		}
 	}
 	void Event_ButtonClicked(Object^ pSender, ToolBarButtonClickEventArgs^ Args) {
-		if (Args->Button->ToolTipText == L"Export Data to CSV File") {
+		if (Args->Button->ToolTipText == L"Open a File") {
+			OpenButtonClick(pSender, Args);
+		}
+        else if (Args->Button->ToolTipText == L"Export Data to CSV File") {
 			Export_Click(pSender, Args);
 		}
 		else if (Args->Button->ToolTipText == L"Delete the Whole Table") {
-			if (ConfirmDeleteTable()) {
-				DeleteResults_Click(pSender, Args);
-			}
+			DeleteResults_Click(pSender, Args);
 		}
 	}
 	void Setup_RadioChecked(Object^ pSender, EventArgs^ Args)

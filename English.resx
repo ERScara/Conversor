@@ -175,7 +175,7 @@
     <value>No Resaltar</value>
   </data>
   <data name="Status1.Text" xml:space="preserve">
-    <value>Conección a la Base de Datos Exitosa.</value>
+    <value>Conexión a la Base de Datos Exitosa.</value>
   </data>
   <data name="Status2.Text" xml:space="preserve">
     <value>Todo Listo.</value>
