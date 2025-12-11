@@ -78,7 +78,7 @@ void ConvForm::InitForm()
     this->lblUnitC = gcnew Label;
     this->lblUnitC->Location = Point(180, 68);
     this->lblUnitC->AutoSize = true;
-    this->lblUnitC->Text = L"&ºC";
+    this->lblUnitC->Text = L"&ÂºC";
     this->grpBox->Controls->Add(lblUnitC);
 
 	this->Controls->Add(grpBox);
@@ -138,10 +138,6 @@ void ConvForm::InitForm()
 	this->Tools->AllowDrop = true;
     this->Tools->Dock = DockStyle::Top;
     this->Controls->Add(Tools);
-
-    this->labs = gcnew Label;
-	this->labs->Location = Point(275, 300);
-	this->labs->Size = Drawing::Size(250, 80);
 
     refreshTimer = gcnew System::Windows::Forms::Timer();
     refreshTimer->Interval = 5000;
@@ -584,7 +580,7 @@ void ConvForm::MenuItem_Spanish_Click(Object^ pSender, EventArgs^ Args) {
     AppSettings^ settings = gcnew AppSettings();
     settings->InitializeMenu();
     if (resManager == nullptr) {
-        resManager = gcnew ResourceManager("ConversorWebService.Español", Assembly::GetExecutingAssembly());
+        resManager = gcnew ResourceManager("ConversorWebService.EspaÃ±ol", Assembly::GetExecutingAssembly());
     }
     this->Text = resManager->GetString("ConvForm.Text", spanishCulture);
 
@@ -621,4 +617,5 @@ void ConvForm::OKButton_Cliked(Object^ pSender, EventArgs^ Args)
     Form ^ parentForm = clickedButton->FindForm();
 
     parentForm->Close();
+
 }
