@@ -53,6 +53,7 @@ void ConvForm::InitForm()
 
     this->txtGF = gcnew TextBox;
     this->txtGF->Location = Point(80, 32);
+    this->txtGF->Width = 80;
     this->txtGF->Font = gcnew System::Drawing::Font("Consolas", 9);
     this->txtGF->Text = L"";
     this->grpBox->Controls->Add(txtGF);
@@ -65,20 +66,21 @@ void ConvForm::InitForm()
 
     this->txtGC = gcnew TextBox;
     this->txtGC->Location = Point(80, 64);
+    this->txtGC->Width = 80;
     this->txtGC->Font = gcnew System::Drawing::Font("Consolas", 9);
     this->txtGC->Text = L"";
     this->grpBox->Controls->Add(txtGC);
 
     this->lblUnitF = gcnew Label;
-    this->lblUnitF->Location = Point(180, 36);
+    this->lblUnitF->Location = Point(160, 36);
     this->lblUnitF->AutoSize = true;
-    this->lblUnitF->Text = L" &F";
+    this->lblUnitF->Text = L"&ºF";
     this->grpBox->Controls->Add(lblUnitF);
 
     this->lblUnitC = gcnew Label;
-    this->lblUnitC->Location = Point(180, 68);
+    this->lblUnitC->Location = Point(160, 68);
     this->lblUnitC->AutoSize = true;
-    this->lblUnitC->Text = L"&ÂºC";
+    this->lblUnitC->Text = L"&ºC";
     this->grpBox->Controls->Add(lblUnitC);
 
 	this->Controls->Add(grpBox);
@@ -493,10 +495,10 @@ void ConvForm::MenuItem_Exit_Click(Object^ pSender, EventArgs^ Args)
 void ConvForm::Export_Click(Object^ pSender, EventArgs^ Args)
 {
     try {
-        ExporttoCSV();
+        ExportData();
     }
     catch (Exception^ ex) {
-        MessageBox::Show(ex->Message, "Export Error encountered!");
+        System::Windows::Forms::DialogResult result = MessageBox::Show(ex->Message, "Export Error encountered!", MessageBoxButtons::OK, MessageBoxIcon::Error);
     }
 }
 
@@ -514,7 +516,7 @@ void ConvForm::Setup_ToolBar() {
     btnOpenFile->ToolTipText = L"Open a File";
     ToolBarButton^ butnExport = gcnew ToolBarButton();
     butnExport->ImageIndex = 1;
-	butnExport->ToolTipText = L"Export Data to CSV File";
+	butnExport->ToolTipText = L"Export Data";
     ToolBarButton^ butnDelete = gcnew ToolBarButton();
     butnDelete->ImageIndex = 2;
     butnDelete->ToolTipText = L"Delete the Whole Table";
@@ -580,7 +582,7 @@ void ConvForm::MenuItem_Spanish_Click(Object^ pSender, EventArgs^ Args) {
     AppSettings^ settings = gcnew AppSettings();
     settings->InitializeMenu();
     if (resManager == nullptr) {
-        resManager = gcnew ResourceManager("ConversorWebService.EspaÃ±ol", Assembly::GetExecutingAssembly());
+        resManager = gcnew ResourceManager("ConversorWebService.Español", Assembly::GetExecutingAssembly());
     }
     this->Text = resManager->GetString("ConvForm.Text", spanishCulture);
 
@@ -617,5 +619,4 @@ void ConvForm::OKButton_Cliked(Object^ pSender, EventArgs^ Args)
     Form ^ parentForm = clickedButton->FindForm();
 
     parentForm->Close();
-
 }

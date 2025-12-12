@@ -1,6 +1,7 @@
 #pragma once
 #include "Conversor.h"
 #using <mscorlib.dll>
+#using <system.xml.dll>
 #using <System.dll>
 #using <System.Drawing.dll>
 #using <System.Data.dll>
@@ -12,6 +13,9 @@ using namespace System::Data;
 using namespace System::Data::SqlClient;
 using namespace System::Resources;
 using namespace System::Reflection;
+using namespace System::Xml;
+using namespace System::Text;
+using namespace System::Xml::Schema;
 using namespace System::Threading;
 using namespace System::IO;
 using namespace System::Text;
@@ -61,8 +65,8 @@ public:
 				L"VALUES (@F, @C)";
 			SqlCommand^ cmd = gcnew SqlCommand(data, conn);
 
-			cmd->Parameters->AddWithValue(L"@F", fahrenheit);
-			cmd->Parameters->AddWithValue(L"@C", celsius);
+			cmd->Parameters->AddWithValue(L"@F", SqlDbType::Decimal)->Value = fahrenheit;
+			cmd->Parameters->AddWithValue(L"@C", SqlDbType::Decimal)->Value = celsius;
 			cmd->ExecuteNonQuery();
 		}
 		catch (Exception^ ex) {
@@ -108,33 +112,65 @@ public:
 	String^ GetConnectionString() {
 		return connectionString;
 	}
+	
 	void ImportCSVtoSQL(String^ csvPath) {
 		SqlConnection^ conn = gcnew SqlConnection(connectionString);
+		int linenumber = 0;
 		try {
 			conn->Open();
 
-			StreamReader^ sr = gcnew StreamReader(csvPath);
+			StreamReader^ sr = gcnew StreamReader(csvPath, System::Text::Encoding::UTF8);
 
-			String^ headerLine = sr->ReadLine();
 			while (!sr->EndOfStream) {
+				linenumber++;
 				String^ line = sr->ReadLine();
-				array<String^>^ values = line->Split(',');
+				array<Char>^ delimiters = {' ', ',', ';', '\t'};
+				array<String^>^ values = line->Split(delimiters, System::StringSplitOptions::RemoveEmptyEntries);
 
 				String^ query = L"INSERT INTO Conversions (Fahrenheit, Celsius) " +
 					L"VALUES (@F, @C)";
 				SqlCommand^ cmd = gcnew SqlCommand(query, conn);
 
-				cmd->Parameters->AddWithValue(L"@F", values[0]);
-				cmd->Parameters->AddWithValue(L"@C", values[1]);
+				if (values->Length < 2) {
+					continue;
+				}
+				else if (String::IsNullOrWhiteSpace(line)) {
+					continue;
+				}
+
+				String^ fahrenheitStr = values[0]->Trim()->Replace(L"\"", L"");
+				String^ celsiusStr = values[1]->Trim()->Replace(L"\"", L"");
+
+				fahrenheitStr = fahrenheitStr->Replace(L",", L".");
+				celsiusStr = celsiusStr->Replace(L",", L".");
+
+				double fahrenheitValue = System::Convert::ToDouble(values[0], CultureInfo::InvariantCulture);
+				double celsiusValue = System::Convert::ToDouble(values[1], CultureInfo::InvariantCulture);
+
+				cmd->Parameters->AddWithValue(L"@F", SqlDbType::Decimal)->Value = fahrenheitValue;
+				cmd->Parameters->AddWithValue(L"@C", SqlDbType::Decimal)->Value = celsiusValue;
 				cmd->ExecuteNonQuery();
+
+				bool fahrenheitParser = Double::TryParse(fahrenheitStr, NumberStyles::Float, CultureInfo::InvariantCulture, fahrenheitValue);
+				bool celsiusParser = Double::TryParse(celsiusStr, NumberStyles::Float, CultureInfo::InvariantCulture, celsiusValue);
+
+				if (!fahrenheitParser || !celsiusParser) {
+					throw gcnew Exception("Parsing error at line " + linenumber.ToString());
+				}
 			}
 			sr->Close();
 			conn->Close();
 
-			MessageBox::Show("Data imported successfully");
+			System::Windows::Forms::DialogResult result = MessageBox::Show("Data imported successfully!", "Success!", MessageBoxButtons::OK, MessageBoxIcon::Asterisk);
+		}
+		catch (FormatException^ fex) {
+			System::Windows::Forms::DialogResult result = MessageBox::Show("Format error at line " + linenumber.ToString() + ": " + fex->Message + " Important: Make sure there aren't any commas ( , ) as a decimal separator. Use dots ( . ) instead!", "Format Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
+		}
+		catch (System::IO::IOException^ ioex) {
+			System::Windows::Forms::DialogResult result = MessageBox::Show("Input/Output Exception " + linenumber.ToString() + ": " + ioex->Message + " Make sure the file is not being used/opened by another program.", "Data Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
 		}
 		catch (Exception^ ex) {
-			MessageBox::Show("Error importing: " + ex->Message);
+			System::Windows::Forms::DialogResult result = MessageBox::Show("Error importing: " + ex->Message, "Import Error", MessageBoxButtons::OK, MessageBoxIcon::Error);
 		}
 	}
 };
@@ -186,6 +222,39 @@ public:
 	}
 };
 
+public ref class XML {
+public:
+	static void WriteXML(DataTable^ dataTable, String^ filepath) {
+		try {
+			XmlTextWriter^ writer = gcnew XmlTextWriter(filepath, Encoding::UTF8);
+			writer->Formatting = Formatting::Indented;
+
+			writer->WriteStartDocument();
+			writer->WriteStartElement("Temperature");
+			for each (DataRow ^ row in dataTable->Rows) {
+
+				writer->WriteStartElement("Conversion");
+
+				for each (DataColumn ^ col in dataTable->Columns) {
+					String^ colName = col->ColumnName;
+					String^ value = row[col]->ToString();
+
+					writer->WriteElementString(colName, value);
+
+					
+				}
+				writer->WriteEndElement();
+			}
+			writer->WriteEndElement();
+			writer->WriteEndDocument();
+			writer->Close();
+		}
+		catch (Exception^ ex) {
+			throw gcnew Exception("Error writing file to XML: " + ex->Message);
+		}
+	}
+};
+
 
 public ref class AppSettings {
 public: 
@@ -199,7 +268,7 @@ public:
 	ResourceManager^ resManager;
 	Void InitializeMenu() { 
 		if (resManager == nullptr) {
-			resManager = gcnew ResourceManager("ConversorWebService.EspaÃ±ol", Assembly::GetExecutingAssembly());
+			resManager = gcnew ResourceManager("ConversorWebService.Español", Assembly::GetExecutingAssembly());
 		}
 	}
 };
@@ -294,6 +363,7 @@ private:
 	void OpenButtonClick(Object^ pSender, ToolBarButtonClickEventArgs^ Args) {
 		OpenFileDialog^ openFile = gcnew OpenFileDialog();
 		openFile->Filter = "CSV files (*.csv)|*.csv";
+		openFile->FilterIndex = 1;
 		openFile->Title = "Select a File to Open";
 		if (openFile->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
 			String^ csvPath = openFile->FileName;
@@ -302,19 +372,28 @@ private:
 		}
 	}
 
-	void ExporttoCSV() 
+	void ExportData() 
 	{
 		SaveFileDialog^ saveFileDialog = gcnew SaveFileDialog();
-		saveFileDialog->Filter = "CSV files (*.csv)|*.csv";
-		saveFileDialog->Title = "Save table Conversions";
+		saveFileDialog->Filter = "CSV file (*.csv)|*.csv|XML Document (*.xml)|*.xml|All Files (*.*)|*.*";
+		saveFileDialog->FilterIndex = 1;
+		saveFileDialog->Title = "Save Table As";
 		saveFileDialog->DefaultExt = "csv";
 
 		if (saveFileDialog->ShowDialog() == System::Windows::Forms::DialogResult::OK) {
 			DataManager^ dm = gcnew DataManager;
 			DataTable^ dataTable = dm->GetHistory();
 			String^ filePath = saveFileDialog->FileName;
-			CSV::WriteDataTableToCSV(dataTable, filePath);
-			MessageBox::Show("Exported Successfully!");
+			String^ ext = System::IO::Path::GetExtension(filePath)->ToLower();
+
+			if (ext == ".csv") {
+			    CSV::WriteDataTableToCSV(dataTable, filePath);
+			}
+			else if (ext == ".xml") {
+				XML::WriteXML(dataTable, filePath);
+			}
+			
+			MessageBox::Show("Exported Successfully!", "Success", MessageBoxButtons::OK, MessageBoxIcon::Asterisk);
 		}
 	}
 
@@ -358,7 +437,7 @@ private:
 		if (Args->Button->ToolTipText == L"Open a File") {
 			OpenButtonClick(pSender, Args);
 		}
-        else if (Args->Button->ToolTipText == L"Export Data to CSV File") {
+        else if (Args->Button->ToolTipText == L"Export Data") {
 			Export_Click(pSender, Args);
 		}
 		else if (Args->Button->ToolTipText == L"Delete the Whole Table") {
@@ -370,15 +449,21 @@ private:
 		RadioButton^ rb = safe_cast<RadioButton^>(pSender);
 		if (rb == radioC)
 		{
-			if(txtGC != nullptr) txtGC->Font = boldFont;
+			if (txtGC != nullptr) txtGC->BackColor = System::Drawing::Color::LightBlue;
+			if (txtGC != nullptr) txtGC->Font = boldFont;
+			if (txtGF != nullptr) txtGF->BackColor = System::Drawing::Color::White;
 			if (txtGF != nullptr) txtGF->Font = defaultFont;
 		}
 		else if (rb == radioF) {
+			if (txtGF != nullptr) txtGF->BackColor = System::Drawing::Color::LightBlue;
 			if (txtGF != nullptr) txtGF->Font = boldFont;
+			if (txtGC != nullptr) txtGC->BackColor = System::Drawing::Color::White;
 			if (txtGC != nullptr) txtGC->Font = defaultFont;
 		}
 		else if (rb == RNone) {
+			if (txtGF != nullptr) txtGF->BackColor = System::Drawing::Color::White;
 			if (txtGF != nullptr) txtGF->Font = defaultFont;
+			if (txtGC != nullptr) txtGC->BackColor = System::Drawing::Color::White;
 			if (txtGC != nullptr) txtGC->Font = defaultFont;
 		}
 	}
@@ -386,14 +471,18 @@ private:
 	{
 		CheckBox^ cb = safe_cast<CheckBox^>(pSender);
 		if (cb->Checked) {
+			if (txtGC != nullptr) txtGC->BackColor = System::Drawing::Color::LightBlue;
 			if (txtGC != nullptr) txtGC->Font = boldFont;
+			
+			if (txtGF != nullptr) txtGF->BackColor = System::Drawing::Color::LightBlue;
 			if (txtGF != nullptr) txtGF->Font = boldFont;
 		}
 		else if (!cb->Checked) 
 		{
+			if (txtGF != nullptr) txtGF->BackColor = System::Drawing::Color::White;
 			if (txtGF != nullptr) txtGF->Font = defaultFont;
+			if (txtGC != nullptr) txtGC->BackColor = System::Drawing::Color::White;
 			if (txtGC != nullptr) txtGC->Font = defaultFont;
 		}
 	}
 };
-
