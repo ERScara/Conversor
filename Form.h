@@ -268,7 +268,7 @@ public:
 	ResourceManager^ resManager;
 	Void InitializeMenu() { 
 		if (resManager == nullptr) {
-			resManager = gcnew ResourceManager("ConversorWebService.Español", Assembly::GetExecutingAssembly());
+			resManager = gcnew ResourceManager("ConversorWebService.EspaÃ±ol", Assembly::GetExecutingAssembly());
 		}
 	}
 };
@@ -308,7 +308,6 @@ private:
 	Button^ btnCalculate;
 	void ConvertirClick(Object^ pSender, EventArgs^ Args);
 	MainMenu^ menuBar;
-	MenuStrip^ menuStrip;
 	MenuItem^ fileMenu;
 	MenuItem^ settingsMenu;
 	MenuItem^ submenu1;
@@ -486,3 +485,4 @@ private:
 		}
 	}
 };
+
