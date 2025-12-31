@@ -1,0 +1,6 @@
+﻿  ConversorSetup.cpp
+  Generando código
+  Previous IPDB and IOBJ mismatch, fall back to full compilation.
+  All 2 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Generación de código finalizada
+  ConversorSetup.vcxproj -> C:\Users\Esteban\source\repos\NewProjects\WebServices\ConversorWebService\x64\Debug\ConversorSetup.exe
